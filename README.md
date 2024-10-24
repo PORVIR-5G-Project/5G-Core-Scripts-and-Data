@@ -1,6 +1,50 @@
 # Deployments, Tests and DataSets of Free5GC and Open5GS
 
-## 1. Running the scripts for new tests
+## 1. Using the Datasets from Our Experiments:
+
+### 1. Choose the core network you would like to use the datasets with:
+- **For Free5GC**:
+```bash
+cd Free5GC
+```
+- **For Open5GS**:
+```bash
+cd Open5GS
+```
+
+### 2. Select the experiment you would like to explore:
+
+- **For Decrement_Test:**
+- 10 rounds of a test with an initial time interval of 4600ms, where the time is decremented by 500ms between 10 connection tests for 100 UEs:
+```bash
+cd Decrement_Test
+```
+- **For Division_Test:**
+- 10 rounds of a test with an initial time interval of 51200ms, where the time is divided by a factor of 2 between 20 connection tests for 100 UEs:
+```bash
+cd Division_Test
+```
+- **For Parallel_Test_100:**
+- 10 rounds with a constant time interval of 100ms between connection tests for 100 UEs:
+```bash
+cd Parallel_Test_100
+```
+- **For Parallel_Test_10000:**
+- 10 rounds with a constant time interval of 10000ms between connection tests for 100 UEs:
+```bash
+cd Parallel_Test_10000
+```
+
+### 3. Select the type of data for analysis:
+
+- **For Tester:**
+  - 10 CSV files containing tester logs from our experiments.
+
+- **For timestamps.txt:**
+  - 10 timestamps collected from our experiments to be used for metric collection.
+
+
+## 2. Running the scripts for new tests
 ### 1. Choose the core network you would like to test:
 - For Free5GC:
 ```bash
