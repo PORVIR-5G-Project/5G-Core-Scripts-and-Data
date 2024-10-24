@@ -89,17 +89,25 @@ kubectl --version
 
 #### 1. For constant time interval between connections:
 ```bash
-./connection_test.sh parallel [number_of_ues_per_tester] [delay_between_connections] [rounds]
+./connection_test.sh parallel [number_of_ues_per_tester] [delay] [rounds]
 ```
 - For example: 10 rounds with a constant time interval of 1000ms between connection tests for 100 UEs:
 ```bash
 ./connection_test.sh parallel 100 1000 10
 ```
-#### 2. For 10 rounds of a test with an initial time interval of 51200ms, where the time is divided by a factor of 2 between 20 connection tests for 100 UEs:
+#### 2. For exponential decreasing time between connections:
+```bash
+./connection_test.sh division [number_of_ues_per_tester] [start_delay] [interval] [factor] [rounds]
+```
+- For 10 rounds of a test with an initial time interval of 51200ms, where the time is divided by a factor of 2 between 20 connection tests for 100 UEs:
 ```bash
 ./connection_test.sh division 100 51200 20 2 10
 ```
-#### 3. For 10 rounds of a test with an initial time interval of 4600ms, where the time is decremented by 500ms between 10 connection tests for 100 UEs:
+#### 3. For linear decreasing time between connections:
+```bash
+./connection_test.sh division [number_of_ues_per_tester] [start_delay] [interval] [factor] [rounds]
+```
+- For 10 rounds of a test with an initial time interval of 4600ms, where the time is decremented by 500ms between 10 connection tests for 100 UEs:
 ```bash
 ./connection_test.sh decrement 100 4600 10 500 10
 ```
