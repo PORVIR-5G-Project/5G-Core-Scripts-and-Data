@@ -24,7 +24,7 @@ namespace: your_namespace
 ### 3. Make the scripts executable using the ```chmod``` command:
 
 ```bash
-cd ..Data/
+cd ../Data/
 chmod +x connection_test.sh
 chmod +x capture_and_parse_logs.sh
 ```
