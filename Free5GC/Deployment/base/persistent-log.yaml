@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: free5gc-tcpdump-pv-claim
+  namespace: free5gc
+spec:
+  storageClassName: rook-cephfs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: free5gc-mongodb-pv-claim
+  namespace: free5gc
+spec:
+  storageClassName: rook-ceph-fs-simple
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi

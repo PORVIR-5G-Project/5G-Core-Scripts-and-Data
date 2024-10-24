@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: iperf
+  namespace: free5gc
+  labels:
+    epc-mode: iperf
+    promotheus: free5gc-monitor
+spec:
+  selector:
+    epc-mode: iperf
+  ports:
+    - name: http2-5001
+      protocol: TCP
+      port: 5001
+      targetPort: 5001
+    - name: udp-5001
+      protocol: UDP
+      port: 5001
+      targetPort: 5001
+---    
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: free5gc-iperf
+  namespace: free5gc
+  labels:
+    epc-mode: iperf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: iperf
+  template:
+    metadata:   
+      labels:
+        epc-mode: iperf
+        version: v3.3.0
+        prometheus: free5gc-monitor
+        app: free5gc-iperf
+    spec:  
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: kiss
+      containers: 
+
+        - name: iperf
+          image: mlabbe/iperf:latest  
+          ports:
+            - name: http2-5001
+              protocol: TCP
+              containerPort: 5001
+            - name: udp-5001
+              protocol: UDP
+              containerPort: 5001
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["NET_ADMIN", "SYS_MODULE"]  
+          #command: ["/bin/iperf", "-s", "--histograms"]
+          command: ["iperf","-s","-p","5001"]
+---

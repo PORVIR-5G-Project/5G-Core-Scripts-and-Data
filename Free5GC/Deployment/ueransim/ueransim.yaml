@@ -1,0 +1,185 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: free5gc-ueransim
+  namespace: free5gc
+  labels:
+    epc-mode: ueransim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: ueransim
+  template:
+    metadata:
+      labels:
+        epc-mode: ueransim
+        app: free5gc-ueransim
+    spec:
+      nodeSelector:
+        nodetype: server
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: metallica
+      containers:
+        - name: ueransim
+          image: free5gc/ueransim:v3.3.0
+          imagePullPolicy: Always
+          command: ["bash","-c","/free5gc/script/start.sh"]
+          #command: ["./nr-gnb", "-c", "/free5gc/gnb/gnbConfig.yaml"]
+          ports:
+            - containerPort: 8000
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["NET_ADMIN", "SYS_MODULE"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configuracoes
+            - name: gnb-volume
+              mountPath: /free5gc/gnb
+            - name: gnb-start
+              mountPath: /free5gc/script
+      volumes:
+        - name: config-volume
+          configMap:
+            name: ue-config
+        - name: gnb-volume
+          configMap:
+            name: gnb-config
+        - name: gnb-start
+          configMap:
+            name: gnb-script
+            defaultMode: 0777
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gnb-config
+  namespace: free5gc
+data:
+  gnbConfig.yaml: |
+    mcc: '208'          # Mobile Country Code value
+    mnc: '93'           # Mobile Network Code value (2 or 3 digits)
+
+    nci: '0x000000010'  # NR Cell Identity (36-bit)
+    idLength: 32        # NR gNB ID length in bits [22...32]
+    tac: 1              # Tracking Area Code
+
+    linkIp: HOSTNAME
+    ngapIp: HOSTNAME
+    gtpIp: HOSTNAME
+
+    amfConfigs:
+      - address: amf.free5gc.svc.cluster.local
+        port: 38412
+
+    slices:
+      - sst: 0x1
+        sd: 0x010203
+
+    ignoreStreamIds: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gnb-script
+  namespace: free5gc
+data:
+  start.sh: |
+    sed "s/HOSTNAME/$HOSTNAME/g" /configuracoes/ueConfig.yaml > /free5gc/ueConfig-1.yaml
+    sed "s/HOSTNAME/$HOSTNAME/g" /free5gc/gnb/gnbConfig.yaml > /free5gc/gnbConfig-1.yaml
+    ./nr-gnb -c /free5gc/gnbConfig-1.yaml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ue-config
+  namespace: free5gc
+data:
+  ueConfig.yaml: |
+    supi: 'imsi-208930000000001'
+    # Mobile Country Code value of HPLMN
+    mcc: '208'
+    # Mobile Network Code value of HPLMN (2 or 3 digits)
+    mnc: '93'
+
+    # Permanent subscription key
+    key: '8baf473f2f8fd09487cccbd7097c6862'
+    # Operator code (OP or OPC) of the UE
+    op: '8e27b6af0e692e750f32667a3b14605d'
+    # This value specifies the OP type and it can be either 'OP' or 'OPC'
+    opType: 'OPC'
+    # Authentication Management Field (AMF) value
+    amf: '8000'
+    # IMEI number of the device. It is used if no SUPI is provided
+    imei: '356938035643803'
+    # IMEISV number of the device. It is used if no SUPI and IMEI is provided
+    imeiSv: '4370816125816151'
+
+    # List of gNB IP addresses for Radio Link Simulation
+    gnbSearchList:
+      - HOSTNAME
+
+    # UAC Access Identities Configuration
+    uacAic:
+      mps: false
+      mcs: false
+
+    # UAC Access Control Class
+    uacAcc:
+      normalClass: 0
+      class11: false
+      class12: false
+      class13: false
+      class14: false
+      class15: false
+
+    # Initial PDU sessions to be established
+    sessions:
+      - type: 'IPv4'
+        apn: 'default'
+        slice:
+          sst: 0x01
+          sd: 0x010203
+
+    # Configured NSSAI for this UE by HPLMN
+    configured-nssai:
+      - sst: 0x01
+        sd: 0x010203
+
+    # Default Configured NSSAI for this UE
+    default-nssai:
+      - sst: 1
+        sd: 1
+
+    # Supported integrity algorithms by this UE
+    integrity:
+      IA1: true
+      IA2: true
+      IA3: true
+
+    # Supported encryption algorithms by this UE
+    ciphering:
+      EA1: true
+      EA2: true
+      EA3: true
+
+    # Integrity protection maximum data rate for user plane
+    integrityMaxRate:
+      uplink: 'full'
+      downlink: 'full'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ueransim
+  namespace: free5gc
+spec:
+  selector:
+    epc-mode: ueransim
+    app: free5gc-ueransim
+  ports:
+    - name: http-free5gc-ueransim-8000
+      protocol: TCP
+      port: 8000
+      targetPort: 8000

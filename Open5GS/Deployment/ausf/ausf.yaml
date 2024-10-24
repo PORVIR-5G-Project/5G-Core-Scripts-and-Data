@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-ausf
+  namespace: cemenin
+  labels:
+    epc-mode: ausf
+    prometheus: open5gs-monitor
+spec:
+  selector:
+    epc-mode: ausf
+  ports:
+    - name: http2-80
+      protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: open5gs-ausf
+  namespace: cemenin
+  labels:
+    epc-mode: ausf
+    version: 2.6.4
+    app: open5gs-ausf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: ausf
+  template:
+    metadata:
+      labels:
+        epc-mode: ausf
+        version: 2.6.4
+        app: open5gs-ausf
+    spec:
+      nodeSelector:
+        nodetype: server
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: metallica
+      containers:
+        - name: ausf
+          image: gradiant/open5gs:2.7.1
+          #imagePullPolicy: Always
+          ports:
+            - name: http2-80
+              protocol: TCP
+              containerPort: 80
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["NET_ADMIN", "SYS_MODULE"]
+          volumeMounts:
+            - name: open5gs-ausf-config
+              mountPath: /open5gs/config-map/ausf.yaml
+              subPath: "ausf.yaml"
+          command: ["open5gs-ausfd", "-c", "/open5gs/config-map/ausf.yaml"]
+      volumes:
+        - name: open5gs-ausf-config
+          configMap:
+            name: open5gs-ausf-config
+
+        - name: tcpdump-persistent-storage
+          persistentVolumeClaim:
+            claimName: open5gs-tcpdump-pv-claim
+

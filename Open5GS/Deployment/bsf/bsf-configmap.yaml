@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: open5gs-bsf-config
+  namespace: cemenin
+  labels:
+    epc-mode: bsf
+data:
+  bsf.yaml: |
+    logger:
+      path:
+        file: /opt/open5gs/var/log/open5gs/bsf.log
+
+    global:
+      max:
+        ue: 5000  # The number of UE can be increased depending on memory size.
+    #    peer: 64
+
+    sbi:
+      server:
+        no_tls: true
+      client:
+        no_tls: true
+
+    bsf:
+      sbi:
+        server:
+          - address: 0.0.0.0
+            advertise: open5gs-bsf
+        client:
+          nrf:
+            - uri: http://open5gs-nrf:80
+
+    # scp:
+    #   sbi:
+    #     - name: open5gs-scp

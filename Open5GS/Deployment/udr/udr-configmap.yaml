@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: open5gs-udr-config
+  namespace: cemenin
+  labels:
+    epc-mode: udr
+data:
+  udr.yaml: |
+    
+    db_uri: mongodb://open5gs-mongodb-svc/open5gs
+    
+    logger:
+      path:
+        file: /opt/open5gs/var/log/open5gs/udr.log
+    
+    global:
+      max:
+        ue: 5000  # The number of UE can be increased depending on memory size.
+    #    peer: 64
+    
+    sbi:
+      server:
+        no_tls: true
+      client:
+        no_tls: true
+
+    udr:
+      sbi:
+        server:
+          - dev: eth0
+            advertise: open5gs-udr
+        client:
+          nrf:
+            - uri: http://open5gs-nrf:80
+
+    nrf:
+      sbi:
+        - name: open5gs-nrf
+
+    # scp:
+    #     sbi:
+    #       - name: open5gs-scp

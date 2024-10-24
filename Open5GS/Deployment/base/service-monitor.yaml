@@ -1,0 +1,156 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cemenin
+  labels:
+    kubernetes.io/metadata.name: open5gs
+    serviceMonitor: prometheus
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+  namespace: cemenin
+rules:
+  - nonResourceURLs:
+      - "/metrics"
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: prometheus-k8s
+  namespace: cemenin
+  selfLink: >-
+    /apis/rbac.authorization.k8s.io/v1/namespaces/open5gs/rolebindings/prometheus-k8s
+subjects:
+  - kind: ServiceAccount
+    name: prometheus-k8s
+    namespace: monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: prometheus-k8s
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: prometheus-k8s
+  namespace: cemenin
+  selfLink: /apis/rbac.authorization.k8s.io/v1/namespaces/open5gs/roles/prometheus-k8s
+rules:
+  - verbs:
+      - get
+      - list
+      - watch
+    apiGroups:
+      - ''
+    resources:
+      - services
+      - endpoints
+      - pods
+  - verbs:
+      - get
+      - list
+      - watch
+    apiGroups:
+      - extensions
+    resources:
+      - ingresses
+# ---
+# apiVersion: monitoring.coreos.com/v1
+# kind: ServiceMonitor
+# metadata:
+#   name: open5gs
+#   namespace: cemenin
+#   labels:
+#     promotheus: open5gs-monitor
+# spec:
+#   selector:
+#     matchLabels:
+#       promotheus: open5gs-monitor
+#   endpoints:
+#   - interval: 30s
+#     port: open5gs-amf-tcp-9090  
+#   - interval: 30s
+#     port: open5gs-pcf-tcp-9090
+#   - interval: 30s
+#     port: open5gs-smf-tcp-9090
+#   - interval: 30s
+#     port: open5gs-upf-tcp-9090
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: open5gs-amf
+  namespace: cemenin
+  labels:
+    epc-mode: amf
+spec:
+  selector:
+    matchLabels:
+      epc-mode: amf
+  endpoints:
+  - interval: 30s
+    port: open5gs-amf-tcp-9090
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: open5gs-bsf
+  namespace: cemenin
+  labels:
+    epc-mode: bsf
+spec:
+  selector:
+    matchLabels:
+      epc-mode: bsf
+  endpoints:
+  - interval: 30s
+    port: open5gs-bsf-tcp-9100
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: open5gs-upf
+  namespace: cemenin
+  labels:
+    epc-mode: upf
+spec:
+  selector:
+    matchLabels:
+      epc-mode: upf
+  endpoints:
+  - interval: 30s
+    port: open5gs-upf-tcp-9090
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: open5gs-smf
+  namespace: cemenin
+  labels:
+    epc-mode: smf
+spec:
+  selector:
+    matchLabels:
+      epc-mode: smf
+  endpoints:
+  - interval: 30s
+    port: open5gs-smf-tcp-9090
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: open5gs-pcf
+  namespace: cemenin
+  labels:
+    epc-mode: pcf
+spec:
+  selector:
+    matchLabels:
+      epc-mode: pcf
+  endpoints:
+  - interval: 30s
+    port: open5gs-pcf-tcp-9090

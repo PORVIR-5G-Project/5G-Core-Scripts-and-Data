@@ -1,0 +1,139 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: free5gc-n3iwf
+  namespace: free5gc
+  labels:
+    epc-mode: n3iwf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: n3iwf
+  template:
+    metadata:
+      labels:
+        epc-mode: n3iwf
+        app: free5gc-n3iwf
+    spec:
+      nodeSelector:
+        nodetype: server
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: metallica
+      containers:
+        - name: n3iwf
+          image: free5gc/n3iwf:v3.3.0
+          imagePullPolicy: Always
+          command: ["sh","-c","/free5gc/script/n3iwf-ipsec.sh"]
+          ports:
+            - containerPort: 8000
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["NET_ADMIN", "SYS_MODULE"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configuracoes
+            - name: ipsec-script
+              mountPath: /free5gc/script
+      volumes:
+        - name: config-volume
+          configMap:
+            name: n3iwf-config
+        - name: ipsec-script
+          configMap:
+            name: n3iwf-ipsec
+            defaultMode: 0777
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: n3iwf-config
+  namespace: free5gc
+data:
+  n3iwfConfig.yaml: |
+    info:
+      version: 1.0.5
+      description: N3IWF initial local configuration
+
+    configuration:
+      N3IWFInformation:
+        GlobalN3IWFID:
+          PLMNID:
+            MCC: 208
+            MNC: 93
+          N3IWFID: 135
+        Name: free5GC_N3IWF
+        SupportedTAList:
+          - TAC: 000001
+            BroadcastPLMNList:
+              - PLMNID:
+                  MCC: 208
+                  MNC: 93
+                TAISliceSupportList:
+                  - SNSSAI:
+                      SST: 1
+                      SD: 010203
+                  - SNSSAI:
+                      SST: 1
+                      SD: 112233
+
+      AMFSCTPAddresses:
+        - IP:
+            - amf.free5gc.svc.cluster.local
+          Port: 38412
+      NASTCPPort: 20000
+
+      IKEBindAddress: n3iwf.free5gc.svc.cluster.local
+      IPSecTunnelAddress: 10.0.0.1
+      UEIPAddressRange: 10.0.0.0/24
+      XFRMInterfaceName: xfrmi
+      XFRMInterfaceID: 1
+      GTPBindAddress: 0.0.0.0
+      FQDN: n3iwf.free5gc.svc.cluster.local
+
+      PrivateKey: cert/n3iwf.key
+      CertificateAuthority: cert/n3iwf.pem
+      Certificate: cert/n3iwf.pem
+
+      LivenessCheck:
+        enable: true
+        transFreq: 60s
+        maxRetryTimes: 4
+
+    logger:
+      enable: true
+      level: info
+      reportCaller: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: n3iwf-ipsec
+  namespace: free5gc
+data:
+  n3iwf-ipsec.sh: |
+
+    ip link add name ipsec0 type vti local $(hostname -i | awk '{print $1}') remote 0.0.0.0 key 5
+    ip addr add 10.0.0.1/24 dev ipsec0
+    ip link set dev ipsec0 up
+    ./n3iwf -c /configuracoes/n3iwfConfig.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: n3iwf
+  namespace: free5gc
+spec:
+  selector:
+    epc-mode: n3iwf
+    app: free5gc-n3iwf
+  ports:
+    - name: http-free5gc-n3iwf-8000
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
+    - name: sctp-free5gc-n3iwf-38412
+      protocol: SCTP
+      port: 38412
+      targetPort: 38412

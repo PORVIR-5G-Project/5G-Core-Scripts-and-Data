@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: open5gs-my5grantester
+  namespace: cemenin
+  labels:
+    epc-mode: my5grantester
+    prometheus: open5gs-monitor
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      epc-mode: my5grantester
+  template:
+    metadata:
+      labels:
+        epc-mode: my5grantester
+        version: 2.6.4
+        app: open5gs-my5grantester
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: petshopboys
+      containers:
+        - name: my5grantester
+          image: carlosmenin/my5grantester:latest
+          imagePullPolicy: Always
+          env:
+            - name: NGAP_LOCAL_ADDR
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: GTPU_LOCAL_ADDR
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: MCC
+              value: "999"
+            - name: MNC
+              value: "70"
+            - name: TAC
+              value: "000001"
+            - name: GNBID
+              value: "000003"
+            - name: SST_GNB
+              value: "01"
+            - name: SD
+              value: "000001"
+            - name: MSIN
+              value: "0000000000"
+            - name: KEY
+              value: 465B5CE8B199B49FAA5F0A2EE238A6BC
+            - name: OPC
+              value: E8ED289DEBA952E4283B54E88E6183CA
+            - name: AMF
+              value: "8000"
+            - name: SQN
+              value: "0000000"
+            - name: DNN
+              value: default
+            - name: SST_UE
+              value: "000001"
+            - name: TEST
+              value: $TEST
+            - name: NUM_UE
+              value: "$NUM_UE"
+            - name: DELAY
+              value: "$DELAY"
+            - name: TIME
+              value: "60"
+            - name: NGAP_REMOTE_ADDR
+              value: open5gs-amf
+            - name: INTERVAL
+              value: "$INTERVAL"
+            - name: CONSTANT
+              value: "$CONSTANT"
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - SYS_MODULE
+            privileged: true

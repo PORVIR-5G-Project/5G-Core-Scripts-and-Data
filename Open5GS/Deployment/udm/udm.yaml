@@ -1,0 +1,65 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: open5gs-udm
+  namespace: cemenin
+  labels:
+    epc-mode: udm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: udm
+  template:
+    metadata:
+      labels:
+        epc-mode: udm
+        app: open5gs-udm
+        version: 2.6.4
+    spec:
+      nodeSelector:
+        nodetype: server
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: metallica
+      containers:
+        - name: udm
+          image: gradiant/open5gs:2.7.1
+          #imagePullPolicy: Always
+          ports:
+            - name: http2-80
+              protocol: TCP
+              containerPort: 80
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["NET_ADMIN", "SYS_MODULE"]
+          volumeMounts:
+            - name: open5gs-udm-config
+              mountPath: /open5gs/config-map/udm.yaml
+              subPath: "udm.yaml"
+          command: ["open5gs-udmd", "-c", "/open5gs/config-map/udm.yaml"]
+      volumes:
+        - name: open5gs-udm-config
+          configMap:
+            name: open5gs-udm-config
+
+        - name: tcpdump-persistent-storage
+          persistentVolumeClaim:
+            claimName: open5gs-tcpdump-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-udm
+  namespace: cemenin
+  labels:
+    epc-mode: udm
+    prometheus: open5gs-monitor
+spec:
+  selector:
+    epc-mode: udm
+  ports:
+    - name: http2-80
+      protocol: TCP
+      port: 80
+      targetPort: 80

@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: open5gs-scp-config
+  namespace: cemenin
+  labels:
+    epc-mode: scp
+data:
+  scp.yaml: |
+    logger:
+        file: /var/log/open5gs/scp.log
+
+    sbi:
+      server:
+        no_tls: true
+      client:
+        no_tls: true
+
+    scp:
+        sbi:
+          - dev: eth0
+            advertise: open5gs-scp
+            delegated: yes
+
+    nrf:
+        sbi:
+          - name: open5gs-nrf
+
+    parameter:
+    max:
+    time:
+      nf_instance:
+        heartbeat: 20
+      message:
+        duration: 3000
+

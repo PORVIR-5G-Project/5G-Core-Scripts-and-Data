@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: free5gc-my5grantester
+  namespace: free5gc
+  labels:
+    epc-mode: my5grantester
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      epc-mode: my5grantester
+  template:
+    metadata:
+      labels:
+        epc-mode: my5grantester
+        version: v2.6.4
+        prometheus: free5gc-monitor
+        app: free5gc-my5grantester
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: petshopboys
+      containers:
+        - name: my5grantester
+          image:  carlosmenin/my5grantester:latest
+          ports:
+            - name: http2-8000
+              protocol: TCP
+              containerPort: 8000
+          env:
+            - name: NGAP_LOCAL_ADDR
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: GTPU_LOCAL_ADDR
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: MCC
+              value: "208"
+            - name: MNC
+              value: "93"
+            - name: TAC
+              value: "000001"
+            - name: GNBID
+              value: "000001"
+            - name: SST_GNB
+              value: "01"
+            - name: SD
+              value: "010203"
+            - name: MSIN
+              value: "0000000000"
+            - name: KEY
+              value: 8baf473f2f8fd09487cccbd7097c6862
+            - name: OPC
+              value: 8e27b6af0e692e750f32667a3b14605d
+            - name: AMF
+              value: "8000"
+            - name: SQN
+              value: "000000000023"
+            - name: DNN
+              value: internet
+            - name: SST_UE
+              value: "01"
+            - name: TEST
+              value: $TEST
+            - name: NUM_UE
+              value: "$NUM_UE"
+            - name: DELAY
+              value: "$DELAY"
+            - name: TIME
+              value: "60"
+            - name: NGAP_REMOTE_ADDR
+              value: amf.free5gc.svc.cluster.local
+            - name: INTERVAL
+              value: "$INTERVAL"
+            - name: CONSTANT
+              value: "$CONSTANT"
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - SYS_MODULE
+            privileged: true
+---

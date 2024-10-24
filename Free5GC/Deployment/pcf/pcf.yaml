@@ -1,0 +1,100 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: free5gc-pcf
+  namespace: free5gc
+  labels:
+    epc-mode: pcf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: pcf
+  template:
+    metadata:
+      labels:
+        epc-mode: pcf
+        app: free5gc-pcf
+        version: v3.3.0
+        prometheus: free5gc-monitor
+    spec:
+      hostname: pcf-pod
+      nodeSelector:
+        nodetype: server
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: metallica
+      containers:
+        - name: pcf
+          image: free5gc/pcf:v3.3.0
+          imagePullPolicy: Always
+          command: ["./pcf", "-c", "/configuracoes/pcfConfig.yaml"]
+          ports:
+            - name: http2-8000
+              protocol: TCP
+              containerPort: 8000
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configuracoes
+      volumes:
+        - name: config-volume
+          configMap:
+            name: pcf-config
+            defaultMode: 0777
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pcf-config
+  namespace: free5gc
+data:
+  pcfConfig.yaml: |
+    info:
+      version: 1.0.2
+      description: PCF initial local configuration
+    configuration:
+      pcfName: PCF # the name of this PCF
+      sbi: # Service-based interface information
+        scheme: http # the protocol for sbi (http or https)
+        registerIPv4: pcf.free5gc.svc.cluster.local
+        bindingIPv4: 0.0.0.0
+        port: 8000              # port used to bind the service
+        tls: # the local path of TLS key
+          pem: cert/pcf.pem # PCF TLS Certificate
+          key: cert/pcf.key # PCF TLS Private key
+      timeFormat: 2019-01-02 15:04:05 # time format of this PCF
+      defaultBdtRefId: BdtPolicyId-   # BDT Reference ID, indicating transfer policies of background data transfer.
+      nrfUri: http://nrf.free5gc.svc.cluster.local:8000  # a valid URI of NRF
+      serviceList:   # the SBI services provided by this PCF, refer to TS 29.507
+        - serviceName: npcf-am-policy-control # Npcf_AMPolicyControl service
+        - serviceName: npcf-smpolicycontrol   # Npcf_SMPolicyControl service
+          suppFeat: 3fff # the features supported by Npcf_SMPolicyControl, name defined in TS 29.512 5.8-1, value defined in TS 29.571 5.2.2
+        - serviceName: npcf-bdtpolicycontrol    # Npcf_BDTPolicyControl service
+        - serviceName: npcf-policyauthorization # Npcf_PolicyAuthorization service
+          suppFeat: 3    # the features supported by Npcf_PolicyAuthorization, name defined in TS 29.514 5.8-1, value defined in TS 29.571 5.2.2
+        - serviceName: npcf-eventexposure       # Npcf_EventExposure service
+        - serviceName: npcf-ue-policy-control   # Npcf_UEPolicyControl service
+      mongodb:       # the mongodb connected by this PCF
+        name: free5gc                  # name of the mongodb
+        url: mongodb://db:27017 # a valid URL of the mongodb
+      locality: area1 # Name of the location where a set of AMF, SMF, PCF and UPFs are located
+
+    logger: # log output setting
+      enable: true # true or false
+      level: info # how detailed to output, value: trace, debug, info, warn, error, fatal, panic
+      reportCaller: false # enable the caller report or not, value: true or false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pcf
+  namespace: free5gc
+spec:
+  selector:
+    epc-mode: pcf
+    app: free5gc-pcf
+  ports:
+    - name: http2-8000
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
+---

@@ -1,0 +1,238 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: free5gc-smf
+  namespace: free5gc
+  labels:
+    epc-mode: smf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: smf
+  template:
+    metadata:
+      labels:
+        epc-mode: smf
+        app: free5gc-smf
+        version: v3.3.0
+        prometheus: free5gc-monitor
+    spec:
+      hostname: smf-pod
+      nodeSelector:
+        nodetype: server
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: metallica
+      containers:
+        - name: smf
+          image: free5gc/smf:v3.3.0
+          imagePullPolicy: Always
+          command: ["./smf", "-c", "/configuracoes/smfConfig.yaml", "-u", "/free5gc/ue/ueRouting.yaml"]
+          ports:
+            - name: http2-8000
+              protocol: TCP
+              containerPort: 8000
+            - name: udp-2152
+              protocol: UDP
+              containerPort: 2152
+            - name: udp-8805
+              protocol: UDP
+              containerPort: 8805
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configuracoes
+            - name: config-ueransim
+              mountPath: /free5gc/ue
+      volumes:
+        - name: config-volume
+          configMap:
+            name: smf-config
+            defaultMode: 0777
+        - name: config-ueransim
+          configMap:
+            name: ue-routing-info
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smf-config
+  namespace: free5gc
+data:
+  smfConfig.yaml: |
+    info:
+      version: 1.0.7
+      description: SMF initial local configuration
+    configuration:
+      smfName: SMF # the name of this SMF
+      sbi: # Service-based interface information
+        scheme: http 
+        registerIPv4: smf.free5gc.svc.cluster.local
+        bindingIPv4: 0.0.0.0
+        port: 8000 # Port used to bind the service
+        tls: # the local path of TLS key
+          key: cert/smf.key # SMF TLS Certificate
+          pem: cert/smf.pem # SMF TLS Private key
+      serviceNameList: # the SBI services provided by this SMF, refer to TS 29.502
+        - nsmf-pdusession # Nsmf_PDUSession service
+        - nsmf-event-exposure # Nsmf_EventExposure service
+        - nsmf-oam # OAM service
+      snssaiInfos: # the S-NSSAI (Single Network Slice Selection Assistance Information) list supported by this AMF
+        - sNssai: # S-NSSAI (Single Network Slice Selection Assistance Information)
+            sst: 1 # Slice/Service Type (uinteger, range: 0~255)
+            sd: 010203 # Slice Differentiator (3 bytes hex string, range: 000000~FFFFFF)
+          dnnInfos: # DNN information list
+            - dnn: internet # Data Network Name
+              dns: # the IP address of DNS
+                ipv4: 10.96.0.10
+                ipv6: 2001:4860:4860::8888
+        - sNssai: # S-NSSAI (Single Network Slice Selection Assistance Information)
+            sst: 1 # Slice/Service Type (uinteger, range: 0~255)
+            sd: 112233 # Slice Differentiator (3 bytes hex string, range: 000000~FFFFFF)
+          dnnInfos: # DNN information list
+            - dnn: internet # Data Network Name
+              dns: # the IP address of DNS
+                ipv4: 10.96.0.10
+                ipv6: 2001:4860:4860::8888
+      plmnList: # the list of PLMN IDs that this SMF belongs to (optional, remove this key when unnecessary)
+        - mcc: 208 # Mobile Country Code (3 digits string, digit: 0~9)
+          mnc: 93 # Mobile Network Code (2 or 3 digits string, digit: 0~9)
+      locality: area1 # Name of the location where a set of AMF, SMF, PCF and UPFs are located
+      pfcp: # the IP address of N4 interface on this SMF (PFCP)
+        # addr config is deprecated in smf config v1.0.3, please use the following config
+        nodeID: smf.free5gc.svc.cluster.local # the Node ID of this SMF
+        listenAddr: 0.0.0.0
+        externalAddr: smf.free5gc.svc.cluster.local # the IP/FQDN of N4 interface on this SMF (PFCP)
+      userplaneInformation: # list of userplane information
+        upNodes: # information of userplane node (AN or UPF)
+          gNB1: # the name of the node
+            type: AN # the type of the node (AN or UPF)
+          UPF: # the name of the node
+            type: UPF # the type of the node (AN or UPF)
+            nodeID: upf.free5gc.svc.cluster.local # the Node ID of this UPF
+            addr: upf.free5gc.svc.cluster.local # the IP/FQDN of N4 interface on this UPF (PFCP)
+            sNssaiUpfInfos: # S-NSSAI information list for this UPF
+              - sNssai: # S-NSSAI (Single Network Slice Selection Assistance Information)
+                  sst: 1 # Slice/Service Type (uinteger, range: 0~255)
+                  sd: 010203 # Slice Differentiator (3 bytes hex string, range: 000000~FFFFFF)
+                dnnUpfInfoList: # DNN information list for this S-NSSAI
+                  - dnn: internet
+                    pools:
+                      - cidr: 60.60.0.0/16
+              - sNssai: # S-NSSAI (Single Network Slice Selection Assistance Information)
+                  sst: 1 # Slice/Service Type (uinteger, range: 0~255)
+                  sd: 112233 # Slice Differentiator (3 bytes hex string, range: 000000~FFFFFF)
+                dnnUpfInfoList: # DNN information list for this S-NSSAI
+                  - dnn: internet
+                    pools:
+                      - cidr: 10.61.0.0/16
+                    staticPools:
+                      - cidr: 10.61.100.0/24
+            interfaces: # Interface list for this UPF
+              - interfaceType: N3 # the type of the interface (N3 or N9)
+                endpoints: # the IP address of this N3/N9 interface on this UPF
+                  - upf.free5gc.svc.cluster.local
+                networkInstances:  # Data Network Name (DNN)
+                  - internet
+        links: # the topology graph of userplane, A and B represent the two nodes of each link
+          - A: gNB1
+            B: UPF
+      # retransmission timer for pdu session modification command
+      t3591:
+        enable: true     # true or false
+        expireTime: 16s   # default is 6 seconds
+        maxRetryTimes: 3 # the max number of retransmission
+      # retransmission timer for pdu session release command
+      t3592:
+        enable: true     # true or false
+        expireTime: 16s   # default is 6 seconds
+        maxRetryTimes: 3 # the max number of retransmission
+      nrfUri: http://nrf.free5gc.svc.cluster.local:8000 # a valid URI of NRF
+      #urrPeriod: 10 # default usage report period in seconds
+      #urrThreshold: 1000 # default usage report threshold in bytes
+
+    logger: # log output setting
+      enable: true # true or false
+      level: info # how detailed to output, value: trace, debug, info, warn, error, fatal, panic
+      reportCaller: false # enable the caller report or not, value: true or false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ue-routing-info
+  namespace: free5gc
+data:
+  ueRouting.yaml: |
+    info:
+      version: 1.0.7
+      description: Routing information for UE
+    ueRoutingInfo: # the list of UE routing information
+      UE1: # Group Name
+        members:
+        - imsi-2089300007487 # Subscription Permanent Identifier of the UE
+        topology: # Network topology for this group (Uplink: A->B, Downlink: B->A)
+        # default path derived from this topology
+        # node name should be consistent with smfcfg.yaml
+          - A: gNB1
+            B: BranchingUPF
+          - A: BranchingUPF
+            B: AnchorUPF1
+        specificPath:
+          - dest: 60.60.0.103/32 # the destination IP address on Data Network (DN)
+            # the order of UPF nodes in this path. We use the UPF's name to represent each UPF node.
+            # The UPF's name should be consistent with smfcfg.yaml
+            path: [BranchingUPF, AnchorUPF2]
+
+      UE2: # Group Name
+        members:
+        - imsi-2089300007486 # Subscription Permanent Identifier of the UE
+        topology: # Network topology for this group (Uplink: A->B, Downlink: B->A)
+        # default path derived from this topology
+        # node name should be consistent with smfcfg.yaml
+          - A: gNB1
+            B: BranchingUPF
+          - A: BranchingUPF
+            B: AnchorUPF1
+        specificPath:
+          - dest: 10.0.0.11/32 # the destination IP address on Data Network (DN)
+            # the order of UPF nodes in this path. We use the UPF's name to represent each UPF node.
+            # The UPF's name should be consistent with smfcfg.yaml
+            path: [BranchingUPF, AnchorUPF2]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smf
+  namespace: free5gc
+spec:
+  selector:
+    epc-mode: smf
+    app: free5gc-smf
+  ports:
+    - name: udp-2152
+      protocol: UDP
+      port: 2152
+      targetPort: 2152
+    - name: http2-8000
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
+    - name: udp-8805
+      protocol: UDP
+      port: 8805
+      targetPort: 8805
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: free5gc-smf
+  namespace: free5gc
+  labels:
+    epc-mode: smf
+spec:
+  selector:
+    matchLabels:
+      epc-mode: smf
+  endpoints:
+  - interval: 30s
+    port: http2-15090
+---

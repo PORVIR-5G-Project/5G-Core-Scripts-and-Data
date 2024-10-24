@@ -1,0 +1,139 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: free5gc-upf
+  namespace: free5gc
+  labels:
+    epc-mode: upf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: upf
+  template:
+    metadata:
+      labels:
+        epc-mode: upf
+        app: free5gc-upf
+        version: v3.3.0
+        prometheus: free5gc-monitor
+    spec:
+      hostname: upf-pod
+      nodeSelector:
+        nodetype: server
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: metallica
+      containers:
+        - name: upf
+          image: free5gc/upf:v3.3.0
+          imagePullPolicy: Always
+          command: ["bash","-c","/free5gc/script/upf-iptables.sh"]
+          ports:
+            - name: http2-8000
+              protocol: TCP
+              containerPort: 8000
+            - name: udp-2152
+              protocol: UDP
+              containerPort: 2152
+            - name: udp-8805
+              protocol: UDP
+              containerPort: 8805
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["NET_ADMIN", "SYS_MODULE"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configuracoes
+            - name: iptables-script
+              mountPath: /free5gc/script
+            - name: "dev-net-tun"
+              mountPath: "/dev/net/tun" # Needed for VPN
+      volumes:
+        - name: config-volume
+          configMap:
+            name: upf-config
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+        - name: iptables-script
+          configMap:
+            name: upf-iptables
+            defaultMode: 0777
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: upf-config
+  namespace: free5gc
+data:
+  upfConfig.yaml: |
+    version: 1.0.3
+    description: UPF initial local configuration
+
+    pfcp:
+      addr: upf-pod
+      nodeID: upf.free5gc.svc.cluster.local # External IP or FQDN can be reached
+      retransTimeout: 1s # retransmission timeout
+      maxRetrans: 3 # the max number of retransmission
+
+    gtpu:
+      forwarder: gtp5g
+      # The IP list of the N3/N9 interfaces on this UPF
+      # If there are multiple connection, set addr to 0.0.0.0 or list all the addresses
+      ifList:
+        - addr: 0.0.0.0
+          type: N3
+
+    # The DNN list supported by UPF
+    dnnList:
+      - dnn: internet # Data Network Name
+        cidr: 60.60.0.0/16 # Classless Inter-Domain Routing for assigned IPv4 pool of UE
+        # natifname: eth0
+
+    logger: # log output setting
+      enable: true # true or false
+      level: info # how detailed to output, value: trace, debug, info, warn, error, fatal, panic
+      reportCaller: false # enable the caller report or not, value: true or false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: upf-iptables
+  namespace: free5gc
+data:
+  upf-iptables.sh: |
+
+    ip link set lo up 
+    ip addr add  60.60.0.101 dev lo   
+    ip link set lo up
+
+
+    iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+    iptables -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss 1400
+
+    ./upf -c /configuracoes/upfConfig.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: upf
+  namespace: free5gc
+spec:
+  selector:
+    epc-mode: upf
+    app: free5gc-upf
+  ports:
+    - name: udp-2152
+      protocol: UDP
+      port: 2152
+      targetPort: 2152
+    - name: http2-8000
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
+    - name: udp-8805
+      protocol: UDP
+      port: 8805
+      targetPort: 8805
+---

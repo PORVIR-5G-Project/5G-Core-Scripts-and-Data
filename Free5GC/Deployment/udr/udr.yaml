@@ -1,0 +1,87 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: free5gc-udr
+  namespace: free5gc
+  labels:
+    epc-mode: udr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: udr
+  template:
+    metadata:
+      labels:
+        epc-mode: udr
+        app: free5gc-udr
+        version: v3.3.0
+        prometheus: free5gc-monitor
+    spec:
+      hostname: udr-pod
+      nodeSelector:
+        nodetype: server
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: metallica
+      containers:
+        - name: udr
+          image: free5gc/udr:v3.3.0
+          imagePullPolicy: Always
+          command: ["./udr", "-c", "/configuracoes/udrConfig.yaml"]
+          ports:
+            - name: http2-8000
+              protocol: TCP
+              containerPort: 8000
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configuracoes
+      volumes:
+        - name: config-volume
+          configMap:
+            name: udr-config
+            defaultMode: 0777
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: udr-config
+  namespace: free5gc
+data:
+  udrConfig.yaml: |
+    info:
+      version: 1.0.2
+      description: UDR initial local configuration
+    configuration:
+      sbi: # Service-based interface information
+        scheme: http # the protocol for sbi (http or https)
+        registerIPv4: udr.free5gc.svc.cluster.local # IP used to register to NRF
+        bindingIPv4: 0.0.0.0
+        port: 8000 # port used to bind the service
+        tls: # the local path of TLS key
+          pem: cert/udr.pem # UDR TLS Certificate
+          key: cert/udr.key # UDR TLS Private key
+      mongodb:
+        name: free5gc # Database name in MongoDB
+        url: mongodb://db:27017 # URL of MongoDB
+      nrfUri: http://nrf.free5gc.svc.cluster.local:8000 # a valid URI of NRF
+
+    logger: # log output setting
+      enable: true # true or false
+      level: info # how detailed to output, value: trace, debug, info, warn, error, fatal, panic
+      reportCaller: false # enable the caller report or not, value: true or false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: udr
+  namespace: free5gc
+spec:
+  selector:
+    epc-mode: udr
+    app: free5gc-udr
+  ports:
+    - name: http2-8000
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
+---

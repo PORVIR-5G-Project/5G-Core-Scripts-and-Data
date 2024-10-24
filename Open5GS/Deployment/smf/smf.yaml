@@ -1,0 +1,123 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-smf
+  namespace: cemenin
+  labels:
+    epc-mode: smf
+    prometheus: open5gs-monitor
+spec:
+  selector:
+    epc-mode: smf
+  ports:
+    - name: http2-80
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: udp-2152
+      protocol: UDP
+      port: 2152
+      targetPort: 2152
+    - name: udp-2123
+      protocol: UDP
+      port: 2123
+      targetPort: 2123
+    - name: udp-8805
+      protocol: UDP
+      port: 8805
+      targetPort: 8805
+    - name: sctp-3868
+      protocol: SCTP
+      port: 3868
+      targetPort: 3868
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: open5gs-smf
+  namespace: cemenin
+  labels:
+    epc-mode: smf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: smf
+  template:
+    metadata:
+      labels:
+        epc-mode: smf
+        app: open5gs-smf
+        prometheus: open5gs-monitor
+        version: 2.6.4
+    spec:
+      nodeSelector:
+        nodetype: server
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: metallica
+      containers:
+        - name: smf
+          image: gradiant/open5gs:2.7.1
+          #imagePullPolicy: Always
+          ports:
+            - name: http2-80
+              protocol: TCP
+              containerPort: 80
+            - name: udp-2152
+              protocol: UDP
+              containerPort: 2152
+            - name: udp-2123
+              protocol: UDP
+              containerPort: 2123
+            - name: udp-8805
+              protocol: UDP
+              containerPort: 8805
+            - name: sctp-3868
+              protocol: SCTP
+              containerPort: 3868
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["NET_ADMIN", "SYS_MODULE"]
+          volumeMounts:
+            - name: open5gs-smf-config
+              mountPath: /open5gs/config-map/smf.yaml
+              subPath: "smf.yaml"
+            - name: freediameter-smf-config
+              mountPath: /etc/freeDiameter/smf.conf
+              subPath: "smf.conf"
+            - name: freediameter-smf-cert-config
+              mountPath: /etc/freeDiameter/smf.cert.pem
+              subPath: "smf.cert.pem"
+            - name: freediameter-smf-key-config
+              mountPath: /etc/freeDiameter/smf.key.pem
+              subPath: "smf.key.pem"
+            - name: freediameter-cacert-config
+              mountPath: /etc/freeDiameter/cacert.pem
+              subPath: "cacert.pem"
+            - name: "dev-net-tun"
+              mountPath: "/dev/net/tun" # Needed for VPN
+          command: ["open5gs-smfd", "-c", "/open5gs/config-map/smf.yaml"]
+      volumes:
+        - name: open5gs-smf-config
+          configMap:
+            name: open5gs-smf-config
+        - name: freediameter-smf-config
+          configMap:
+            name: freediameter-smf-config
+        - name: freediameter-smf-cert-config
+          configMap:
+            name: freediameter-smf-cert-config
+        - name: freediameter-smf-key-config
+          configMap:
+            name: freediameter-smf-key-config
+        - name: freediameter-cacert-config
+          configMap:
+            name: freediameter-cacert-config
+        - name: tcpdump-persistent-storage
+          persistentVolumeClaim:
+            claimName: open5gs-tcpdump-pv-claim
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+---

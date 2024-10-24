@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open5gs-amf
+  namespace: cemenin
+  labels:
+    epc-mode: amf
+    promotheus: open5gs-monitor
+    version: 2.6.4
+    app.kubernetes.io/version: 2.6.4-25-g93012c4
+    app.kubernetes.io/part-of: open5gs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: amf
+  template:
+    metadata:
+      annotations:
+        readiness.status.sidecar.istio.io/applicationPorts: "80"
+      labels:
+        epc-mode: amf
+        app: open5gs-amf
+        version: 2.6.4
+    spec:
+      nodeSelector:
+        nodetype: server
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: metallica
+      containers:
+        - name: amf
+          image: gradiant/open5gs:2.7.1
+          #imagePullPolicy: Always
+          ports:
+            - name: http2-80
+              protocol: TCP
+              containerPort: 80
+            - name: sctp-38412
+              protocol: SCTP
+              containerPort: 38412
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["NET_ADMIN", "SYS_MODULE"]
+          volumeMounts:
+            - name: open5gs-amf-config
+              mountPath: /open5gs/config-map/amf.yaml
+              subPath: "amf.yaml"
+            - name: "dev-net-tun"
+              mountPath: "/dev/net/tun" # Needed for VPN
+            - name: tcpdump-persistent-storage
+              mountPath: /var/tcpdump
+          command: ["open5gs-amfd", "-c", "/open5gs/config-map/amf.yaml"]
+      volumes:
+        - name: open5gs-amf-config
+          configMap:
+            name: open5gs-amf-config
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+        - name: tcpdump-persistent-storage
+          persistentVolumeClaim:
+            claimName: open5gs-tcpdump-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-amf
+  namespace: cemenin
+  labels:
+    app: amf
+    epc-mode: amf
+    prometheus: open5gs-monitor
+spec:
+  selector:
+    epc-mode: amf
+  ports:
+    - name: http2-80
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: sctp-38412
+      protocol: SCTP
+      targetPort: 38412
+      port: 38412
