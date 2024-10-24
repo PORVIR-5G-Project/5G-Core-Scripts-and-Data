@@ -5,11 +5,11 @@
 ### 1. Choose the core network you would like to use the datasets with:
 - **For Free5GC**:
 ```bash
-cd Free5GC
+cd Free5GC/Dataset
 ```
 - **For Open5GS**:
 ```bash
-cd Open5GS
+cd Open5GS/Dataset
 ```
 
 ### 2. Select the experiment you would like to explore:
