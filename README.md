@@ -82,7 +82,7 @@ kubectl --version
 ### 5. Modify the initial variables in `connection_test.sh` to suit your requirements:
 
 - `replicas`: Specifies the number of testers.
-- `namespace`: Indicates where the pod commands will be executed.
+- `namespace`: Indicates where ```kubectl``` commands will be executed.
 - `sleep_time`: Defines the duration required to execute one round of the experiment.
 
 ### 6. Choose the workload test you would like to perform:
