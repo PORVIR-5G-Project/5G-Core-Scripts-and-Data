@@ -1,4 +1,4 @@
-# Deployments, Tests and DataSets of Free5GC and Open5GS
+# Deployments, Tests, and Datasets of Free5GC and Open5GS
 
 ## 1. Using the Datasets from Our Experiments:
 
