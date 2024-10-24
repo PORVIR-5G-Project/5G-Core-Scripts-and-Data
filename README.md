@@ -4,32 +4,54 @@
 ### 1. Choose the core network you would like to test:
 - For Free5GC:
 ```bash
-cd Free5GC/Data
+cd Free5GC
 ```
 - For Open5GS
 ```bash
-cd Open5GS/Data
+cd Open5GS
 ```
-### 2. Make the scripts executable using the ```chmod``` command:
+
+### 2. Update the namespace in the YAML deployment files to match your configuration:
+#### 1. Go to Deployment directory
+```bash
+cd Deployment
+```
+#### 2. Update this field in all YAML files:
+```YAML
+namespace: your_namespace
+```
+
+### 3. Make the scripts executable using the ```chmod``` command:
 
 ```bash
+cd ..Data/
 chmod +x connection_test.sh
 chmod +x capture_and_parse_logs.sh
 ```
 
-### 3. Ensure that you have ```kubectl``` installed and are running in root mode:
+### 4. Ensure that you have ```kubectl``` installed and are running in root mode:
 ```bash
 sudo su
 kubectl --version
 ```
 
-### 4. Choose the workload test you would like to perform:
+### 5. Modify the initial variables in `connection_test.sh` to suit your requirements:
+
+- `replicas`: Specifies the number of testers.
+- `namespace`: Indicates where the pods will be deployed.
+- `sleep_time`: Defines the duration required to execute one round of the experiment.
+
+### 6. Choose the workload test you would like to perform:
 
 #### 1. For 10 rounds with a constant time interval of 1000ms between connection tests for 100 UEs:
 ```bash
 ./connection_test.sh parallel 100 1000 10
 ```
-#### 2. For 10 rounds of a test with an initial time interval of 51200ms, where the time is divided/decremented by a factor of 2 between 20 connection tests for 100 UEs:
+#### 2. For 10 rounds of a test with an initial time interval of 51200ms, where the time is divided by a factor of 2 between 20 connection tests for 100 UEs:
 ```bash
-./connection_test.sh [division|decrement] 100 51200 20 2 10
+./connection_test.sh division 100 51200 20 2 10
+```
+#### 3. For 10 rounds of a test with an initial time interval of 4600ms, where the time is decremented by 500ms between 10 connection tests for 100 UEs:
+```bash
+./connection_test.sh decrement 100 4600 10 500 10
 ```

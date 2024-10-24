@@ -44,7 +44,3 @@ cd $WORK_DIR
 rm -rf my5grantester_logs >/dev/null 2>&1
 docker image rm lando/my5grantester-logs-parser >/dev/null 2>&1
 
-# Generate graphics
-#echo "Generating graphics"
-#/bin/python3 /home/carlos/Documentos/IC/my5GRANTester-Metrics/graph2.py
-#/bin/python3 /home/carlos/Documentos/IC/my5GRANTester-Metrics/graph3.py
