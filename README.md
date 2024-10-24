@@ -105,7 +105,7 @@ kubectl --version
 ```
 #### 3. For linear decreasing time between connections:
 ```bash
-./connection_test.sh division [number_of_ues_per_tester] [start_delay] [interval] [factor] [rounds]
+./connection_test.sh decrement [number_of_ues_per_tester] [start_delay] [interval] [factor] [rounds]
 ```
 - For 10 rounds of a test with an initial time interval of 4600ms, where the time is decremented by 500ms between 10 connection tests for 100 UEs:
 ```bash
