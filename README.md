@@ -87,7 +87,11 @@ kubectl --version
 
 ### 6. Choose the workload test you would like to perform:
 
-#### 1. For 10 rounds with a constant time interval of 1000ms between connection tests for 100 UEs:
+#### 1. For constant time interval between connections:
+```bash
+./connection_test.sh parallel [number_of_ues_per_tester] [delay_between_connections] [rounds]
+```
+- For example: 10 rounds with a constant time interval of 1000ms between connection tests for 100 UEs:
 ```bash
 ./connection_test.sh parallel 100 1000 10
 ```
