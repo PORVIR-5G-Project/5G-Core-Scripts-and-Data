@@ -1,0 +1,333 @@
+Test	"{connection_security_policy=""mutual_tls"",container=""istio-proxy"",destination_app=""free5gc-nrf"",destination_canonical_revision=""v3.3.0"",destination_canonical_service=""free5gc-nrf"",destination_cluster=""Kubernetes"",destination_principal=""spiffe://cluster.local/ns/free5gc/sa/default"",destination_service=""nrf.free5gc.svc.cluster.local"",destination_service_name=""nrf"",destination_service_namespace=""free5gc"",destination_version=""v3.3.0"",destination_workload=""free5gc-nrf"",destination_workload_namespace=""free5gc"",endpoint=""http-envoy-prom"",instance=""10.0.8.149:15090"",job=""istio-system/istio-sidecars"",namespace=""free5gc"",pod=""free5gc-nrf-c49d44798-wnh6z"",reporter=""destination"",request_protocol=""http"",response_code=""200"",response_flags=""-"",source_app=""free5gc-ausf"",source_canonical_revision=""v3.3.0"",source_canonical_service=""free5gc-ausf"",source_cluster=""Kubernetes"",source_principal=""spiffe://cluster.local/ns/free5gc/sa/default"",source_version=""v3.3.0"",source_workload=""free5gc-ausf"",source_workload_namespace=""free5gc""}"	"{connection_security_policy=""mutual_tls"",container=""istio-proxy"",destination_app=""free5gc-nrf"",destination_canonical_revision=""v3.3.0"",destination_canonical_service=""free5gc-nrf"",destination_cluster=""Kubernetes"",destination_principal=""spiffe://cluster.local/ns/free5gc/sa/default"",destination_service=""nrf.free5gc.svc.cluster.local"",destination_service_name=""nrf"",destination_service_namespace=""free5gc"",destination_version=""v3.3.0"",destination_workload=""free5gc-nrf"",destination_workload_namespace=""free5gc"",endpoint=""http-envoy-prom"",instance=""10.0.8.149:15090"",job=""istio-system/istio-sidecars"",namespace=""free5gc"",pod=""free5gc-nrf-c49d44798-wnh6z"",reporter=""destination"",request_protocol=""http"",response_code=""201"",response_flags=""-"",source_app=""free5gc-ausf"",source_canonical_revision=""v3.3.0"",source_canonical_service=""free5gc-ausf"",source_cluster=""Kubernetes"",source_principal=""spiffe://cluster.local/ns/free5gc/sa/default"",source_version=""v3.3.0"",source_workload=""free5gc-ausf"",source_workload_namespace=""free5gc""}"	"{connection_security_policy=""mutual_tls"",container=""istio-proxy"",destination_app=""free5gc-nrf"",destination_canonical_revision=""v3.3.0"",destination_canonical_service=""free5gc-nrf"",destination_cluster=""Kubernetes"",destination_principal=""spiffe://cluster.local/ns/free5gc/sa/default"",destination_service=""nrf.free5gc.svc.cluster.local"",destination_service_name=""nrf"",destination_service_namespace=""free5gc"",destination_version=""v3.3.0"",destination_workload=""free5gc-nrf"",destination_workload_namespace=""free5gc"",endpoint=""http-envoy-prom"",instance=""10.0.8.149:15090"",job=""istio-system/istio-sidecars"",namespace=""free5gc"",pod=""free5gc-nrf-c49d44798-wnh6z"",reporter=""destination"",request_protocol=""http"",response_code=""503"",response_flags=""UR"",source_app=""free5gc-ausf"",source_canonical_revision=""v3.3.0"",source_canonical_service=""free5gc-ausf"",source_cluster=""Kubernetes"",source_principal=""spiffe://cluster.local/ns/free5gc/sa/default"",source_version=""v3.3.0"",source_workload=""free5gc-ausf"",source_workload_namespace=""free5gc""}"
+1			
+1			
+1			
+1			
+1			
+1			
+1			
+1	3.194		0.08652145833333334
+1	3.144086021505377		0.0
+1	3.209779614325068		0.0
+1	3.2697802197802193		0.0
+1	3.1928571428571457		0.13125
+1	3.2139344262295038		0.0
+1	3.2096638655462244		0.0
+1	3.167994100294982		0.0
+1	3.214265129682993		0.0
+1	3.124792243767316		0.0
+1	3.201089918256129		0.0
+1	3.2142651296829983		0.0
+1	3.2343575418994353		0.0
+1	3.155263157894727		0.0
+1			
+1			
+1			
+1			
+1			
+1			
+1			
+1			
+1			
+1			
+1			
+1			
+1			
+2			
+2			
+2			
+2			
+2			
+2			
+2			
+2	3.1048763751404267		0.0
+2	3.1172043010752684		0.0983690909090909
+2	3.1793800539083574		0.0
+2	3.1671662125340583		0.0
+2	3.214265129682993		0.0
+2	3.155849582172704		0.0
+2	3.174324324324327		0.0
+2	3.2008875739644957		0.0
+2	3.177329192546585		0.0
+2	3.206862745098035		0.08076923076923079
+2	3.2381720430107537		0.0
+2	3.204054054054054		0.10499999999999998
+2	3.1848314606741552		0.0
+2	3.211290322580661		0.0
+2			
+2			
+2			
+2			
+2			
+2			
+2			
+2			
+2			
+2			
+2			
+2			
+2			
+2			
+2			
+3			
+3			
+3			
+3			
+3			
+3			
+3	3.109336688657551		
+3	3.240883190883191		0.0
+3	3.212011173184358		0.0
+3	3.1971389645776562		0.22777777777777775
+3	3.1928571428571413		0.0
+3	3.14090909090909		0.0
+3	3.1800578034682085		0.0
+3	3.1919939577039282		0.0
+3	3.2019337016574596		0.0
+3	3.267032967032959		0.0
+3	3.20877437325906		0.0
+3	3.249025069637872		0.0
+3	3.131300813008132		0.0
+3	3.1526392961876866		0.0
+3	3.1804347826086796		0.0
+3			
+3			
+3			
+3			
+3			
+3			
+3			
+3			
+3			
+3			
+3			
+3			
+4			
+4			
+4			
+4			
+4			
+4			
+4	3.241859705278569		
+4	3.3615942028985515		
+4	3.373907455012852		0.0
+4	3.329132791327915		
+4	3.2771540469973903		
+4	3.2884615384615383		
+4	3.329187817258885		
+4	3.2672774869109955		0.0
+4	3.3451923076923067		0.0
+4	3.3543478260869506		0.0
+4	3.4073333333333333		0.0
+4	3.2834217506631407		0.0
+4	3.3073099415204315		
+4			
+4			
+4			
+4			
+4			
+4			
+4			
+4			
+4			
+4			
+4			
+4			
+4			
+4			
+4			
+5			
+5			
+5			
+5			
+5			
+5			
+5	3.232499999999999		0.0
+5	3.282804232804235		0.0
+5	3.159289617486337		0.0
+5	3.2472972972972975		0.0
+5	3.203846153846155		0.0
+5	3.1623287671232876		0.0
+5	3.204269972451787		0.0
+5	3.2394150417827268		0.0
+5	3.2105633802816955		0.15093399999999998
+5	3.2090296495956805		0.0
+5	3.195945945945951		0.6661344444444441
+5	3.1851351351351354		0.0
+5	3.1048387096774195		0.0
+5	2.8681818181817524		
+5			
+5			
+5			
+5			
+5			
+5			
+5			
+5			
+5			
+5			
+5			
+6		7.05	
+6			
+6			
+6			
+6			
+6			
+6	3.1196378830083566		
+6	3.2771540469973885		0.0
+6	3.2385714285714284		0.0
+6	3.2385245901639363		0.0
+6	3.194736842105261		0.07594708333333333
+6	3.192857142857141		0.0
+6	3.1732876712328766		0.0
+6	3.2001340482573717		0.0
+6	3.230107526881726		0.0
+6	3.16813186813186		0.0
+6	3.2063342318059327		0.0
+6	3.187466307277626		0.0
+6	3.151092896174861		0.09545454545454546
+6	3.14784688995216		0.0
+6			
+6			
+6			
+6			
+6			
+6			
+6			
+6			
+6			
+6			
+6			
+6			
+7			
+7			
+7			
+7			
+7			
+7			
+7	3.1244850504751396		0.0
+7	3.229419525065962		0.0
+7	3.1243801652892564		0.0
+7	3.246721311475409		0.0
+7	3.1233695652173905		0.0
+7	3.211725067385445		0.0
+7	3.179973474801062		0.0
+7	3.135164835164827		0.0
+7	3.1807901907356957		0.0
+7	3.131417112299479		0.0
+7	3.155691056910566		0.0
+7	3.195205479452045		0.0
+7	3.2094594594594645		0.11846406250000001
+7	3.1648648648648625		0.0
+7			
+7			
+7			
+7			
+7			
+7			
+7			
+7			
+7			
+7			
+7			
+7			
+8						
+8						
+8						
+8						
+8						
+8						
+8						
+8				3.2168436914267384		
+8				3.260937500000001		0.9022386111111111
+8				3.2132653061224508		0.0
+8				3.2156976744186054		0.0
+8				3.219811320754715		0.0
+8				3.177659574468086		1.01
+8				3.204929577464789		0.0
+8				3.183522727272718		0.7749999999999999
+8				3.243905817174518		0.0
+8				3.2582191780821916		0.0
+8				3.261229946524066		0.0
+8				3.1773712737127293		
+8				3.2866197183098644		0.0
+8				3.4265873015873014		
+8						
+8						
+8						
+8						
+8						
+8						
+8						
+8						
+8						
+8						
+8						
+9			
+9			
+9			
+9			
+9			
+9			
+9	3.17398921832884		0.0
+9	3.1653846153846166		0.0
+9	3.1418918918918894		0.0
+9	3.135561497326205		0.080654
+9	3.107220708446865		0.0
+9	3.1750000000000016		0.0
+9	3.155121293800537		0.0
+9	3.118047337278111		0.0
+9	3.1894101876675496		0.0
+9	3.100279329608943		0.0
+9	3.167166212534061		0.0
+9	3.152702702702693		0.0
+9	3.085087719298252		0.0
+9	3.240476190476156		
+9			
+9	3.16		
+9			
+9			
+9			
+9			
+9			
+9			
+9			
+9			
+9			
+10			
+10			
+10			
+10			
+10			
+10			
+10	3.1064531078761686		0.0
+10	3.1310810810810814		0.051131499999999996
+10	3.1890374331550797		0.0
+10	3.2188654353562023		0.0
+10	3.1883578431372537		0.08076923076923077
+10	3.276666666666664		0.10500000000000002
+10	3.166455696202534		0.0
+10	3.179675810473814		0.0
+10	3.131841432225067		0.0
+10	3.1779373368146207		0.0
+10	3.1364864864864814		0.0
+10	3.1067567567567664		0.0
+10	3.069305019305015		0.0
+10			
+10	3.09		
+10			
+10			
+10			
+10			
+10			
+10			
+10			
+10			
+10			
+10			
+10			
+10			
+10			
+10			
+10			
+10			
