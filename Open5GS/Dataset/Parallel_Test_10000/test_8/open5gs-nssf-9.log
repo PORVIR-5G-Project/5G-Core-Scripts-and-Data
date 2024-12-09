@@ -1,0 +1,8 @@
+Open5GS daemon v2.7.1
+
+[32m12/08 02:00:33.735[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/open5gs/config-map/nssf.yaml' (../lib/app/ogs-init.c:133)
+[32m12/08 02:00:33.748[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nnssf-nsselection] (../lib/sbi/context.c:1841)
+[32m12/08 02:00:33.749[0m: [[33msbi[0m] [1;32mINFO[0m: nghttp2_server() [http://0.0.0.0]:80 (../lib/sbi/nghttp2-server.c:414)
+[32m12/08 02:00:33.749[0m: [[33mapp[0m] [1;32mINFO[0m: NSSF initialize...done (../src/nssf/app.c:31)
+[32m12/08 02:00:33.777[0m: [[33msbi[0m] [1;32mINFO[0m: [35b94004-b508-41ef-af49-f9a9f677b36d] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:221)
+[32m12/08 02:00:33.779[0m: [[33msbi[0m] [1;32mINFO[0m: [35be09f4-b508-41ef-aa20-e12b0b43d2f2] Subscription created until 2024-12-09T02:00:33.778757+00:00 [duration:86400,validity:86399.998985,patch:43199.999492] (../lib/sbi/nnrf-handler.c:813)

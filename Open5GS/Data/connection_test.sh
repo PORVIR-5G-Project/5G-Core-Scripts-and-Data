@@ -16,7 +16,8 @@ fi
 test=$1
 namespace=cemenin
 replicas=50
-sleep_time=80
+sleep_time=1600
+components=("amf" "ausf" "bsf" "nrf" "nssf" "pcf" "smf" "udm" "udr" "upf-1")
 
 # Check the number of arguments based on the test
 if [[ "$test" == "parallel" ]]; then
@@ -47,9 +48,13 @@ fi
 
 mkdir $dir_name
 
-
 # Loop through the number of repetitions
 for i in $(seq 1 $repetitions); do
+
+    cd $dir_name
+    mkdir test_${i}
+    cd ..
+
     start_time=$(date +%s)
     if [[ "$test" == "parallel" ]]; then
         test_name=my5grantester_open5gs_${test}_${num_ue}_0_${i}.csv
@@ -81,8 +86,6 @@ for i in $(seq 1 $repetitions); do
     cd ../Deployment
     python3 start.py
 
-    sleep $((60))
-
     kubectl port-forward deployment/open5gs-mongodb 63145:27017 --namespace $namespace &
     PORT_FORWARD_PID=$!
 
@@ -94,15 +97,34 @@ for i in $(seq 1 $repetitions); do
     # Number of UEs and gnBs
     kubectl scale --replicas=$replicas statefulsets open5gs-my5grantester --namespace $namespace
 
-    # Delay
-    echo "Waiting connections for experiment"
-    sleep $((500))
-
-    echo "Waiting for experiment to finish"
-    sleep $(($sleep_time))
-
     cd ../Data
-    ./capture_and_parse_logs.sh $test_name
+
+    steps=30
+    increment=$((sleep_time / steps))
+
+    for c in $(seq 0 $increment $sleep_time); do
+	    
+    	int_time=$(date +%s)
+    	if [ "$c" -eq 0 ]; then
+		int_time=$start_time
+    	fi
+
+    	echo "Waiting for experiment to finish"
+    	sleep "$increment"
+	    
+    	start_iso=$(date -u -d "@$int_time" +"%Y-%m-%dT%H:%M:%SZ")
+
+    	for component in "${components[@]}"; do
+		componente=$(kubectl get pods -n cemenin | grep ^open5gs-${component} | awk '{print $1}')
+   		kubectl logs -n cemenin -c "$component" "$componente" --since-time="$start_iso" >> "${dir_name}/test_${i}/open5gs-${component}-${i}.log"
+    	done
+    done
+
+
+    TESTERS=$(kubectl get pods -n cemenin | grep ^open5gs-my5grantester | awk '{print $1}')
+    for tester in $TESTERS; do
+        kubectl logs -n cemenin $tester --tail=-1 >> "${dir_name}/test_${i}/${test_name}"
+    done
 
     echo "Clear experiment environment"
     kubectl scale --replicas=0 statefulsets open5gs-my5grantester --namespace $namespace
@@ -120,6 +142,4 @@ for i in $(seq 1 $repetitions); do
     cd ../Data
     echo $start_time-$end_time >> ${dir_name}/timestamp.txt
 
-    cd ../Deployment
 done
-cd ../Data

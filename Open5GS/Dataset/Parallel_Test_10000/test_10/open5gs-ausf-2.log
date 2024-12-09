@@ -1,0 +1,11 @@
+Open5GS daemon v2.7.1
+
+[32m12/09 00:52:52.625[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/open5gs/config-map/ausf.yaml' (../lib/app/ogs-init.c:133)
+[32m12/09 00:52:52.639[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nausf-auth] (../lib/sbi/context.c:1841)
+[32m12/09 00:52:52.639[0m: [[33msbi[0m] [1;32mINFO[0m: nghttp2_server() [http://10.0.8.131]:80 (../lib/sbi/nghttp2-server.c:414)
+[32m12/09 00:52:52.640[0m: [[33mapp[0m] [1;32mINFO[0m: AUSF initialize...done (../src/ausf/app.c:31)
+[32m12/09 00:52:52.670[0m: [[33msbi[0m] [1;32mINFO[0m: [eb86bc26-b5c7-41ef-a601-bb47ae326f30] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:221)
+[32m12/09 00:52:52.673[0m: [[33msbi[0m] [1;32mINFO[0m: [eb8c079e-b5c7-41ef-8d58-771144ab580d] Subscription created until 2024-12-10T00:52:52.671700+00:00 [duration:86400,validity:86399.998636,patch:43199.999318] (../lib/sbi/nnrf-handler.c:813)
+[32m12/09 00:52:52.673[0m: [[33msbi[0m] [1;32mINFO[0m: [eb8c0bcc-b5c7-41ef-8d58-771144ab580d] Subscription created until 2024-12-10T00:52:52.671795+00:00 [duration:86400,validity:86399.998636,patch:43199.999318] (../lib/sbi/nnrf-handler.c:813)
+[32m12/09 00:53:13.703[0m: [[33msbi[0m] [1;32mINFO[0m: (NRF-notify) NF registered [f8119e48-b5c7-41ef-8c22-9ff4357fcd0b:1] (../lib/sbi/nnrf-handler.c:1058)
+[32m12/09 00:53:13.703[0m: [[33msbi[0m] [1;32mINFO[0m: [UDM] (NRF-notify) NF Profile updated [f8119e48-b5c7-41ef-8c22-9ff4357fcd0b:1] (../lib/sbi/nnrf-handler.c:1072)

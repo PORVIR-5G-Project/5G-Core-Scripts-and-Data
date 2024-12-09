@@ -16,7 +16,8 @@ fi
 test=$1
 namespace=free5gc
 replicas=50
-sleep_time=400
+sleep_time=1600
+components=("amf" "ausf" "nrf" "nssf" "pcf" "smf" "udm" "udr" "upf")
 
 # Check the number of arguments based on the test
 if [[ "$test" == "parallel" ]]; then
@@ -38,7 +39,7 @@ else
     interval=$4
     divdec=$5
     repetitions=$6
-    if [[ "$test" == "Division" ]]; then
+    if [[ "$test" == "division" ]]; then
         dir_name=Division_${delay}
     else
         dir_name=Decrement_${delay}
@@ -49,6 +50,11 @@ mkdir $dir_name
 
 # Loop through the number of repetitions
 for i in $(seq 1 $repetitions); do
+    
+    cd $dir_name
+    mkdir test_${i}
+    cd ..
+
     start_time=$(date +%s)
     if [[ "$test" == "parallel" ]]; then
         test_name=my5grantester_free5gc_${test}_${num_ue}_0_${i}.csv
@@ -96,15 +102,35 @@ for i in $(seq 1 $repetitions); do
     # Number of UEs and gnBs
     kubectl scale --replicas=$replicas statefulsets free5gc-my5grantester --namespace $namespace
 
-    # Delay
-    echo "Waiting connections for experiment"
-    sleep $((500))
-
-    echo "Waiting for experiment to finish"
-    sleep $(($sleep_time))
-
     cd Data
-    ./capture_and_parse_logs.sh $test_name
+
+    steps=30
+    increment=$((sleep_time / steps))
+
+    for c in $(seq 0 $increment $sleep_time); do
+	    
+    	int_time=$(date +%s)
+    	if [ "$c" -eq 0 ]; then
+		int_time=$start_time
+    	fi
+
+    	echo "Waiting for experiment to finish"
+    	sleep "$increment"
+	    
+    	start_iso=$(date -u -d "@$int_time" +"%Y-%m-%dT%H:%M:%SZ")
+
+    	for component in "${components[@]}"; do
+		componente=$(kubectl get pods -n free5gc | grep ^free5gc-${component} | awk '{print $1}')
+   		kubectl logs -n free5gc -c "$component" "$componente" --since-time="$start_iso" >> "${dir_name}/test_${i}/free5gc-${component}-${i}.log"
+    	done
+    done
+
+
+    TESTERS=$(kubectl get pods -n free5gc | grep ^free5gc-my5grantester | awk '{print $1}')
+    for tester in $TESTERS; do
+        kubectl logs -n free5gc $tester --tail=-1 >> "${dir_name}/test_${i}/${test_name}"
+    done
+
 
     echo "Clear experiment environment"
     kubectl scale --replicas=0 statefulsets free5gc-my5grantester --namespace $namespace

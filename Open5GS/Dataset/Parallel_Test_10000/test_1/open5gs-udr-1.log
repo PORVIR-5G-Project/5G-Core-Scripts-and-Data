@@ -1,0 +1,9 @@
+Open5GS daemon v2.7.1
+
+[32m12/07 21:43:38.142[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/open5gs/config-map/udr.yaml' (../lib/app/ogs-init.c:133)
+[32m12/07 21:43:38.210[0m: [[33mdbi[0m] [1;32mINFO[0m: MongoDB URI: 'mongodb://mongo/open5gs' (../lib/dbi/ogs-mongoc.c:130)
+[32m12/07 21:43:38.210[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nudr-dr] (../lib/sbi/context.c:1841)
+[32m12/07 21:43:38.211[0m: [[33msbi[0m] [1;32mINFO[0m: nghttp2_server() [http://10.0.8.7]:80 (../lib/sbi/nghttp2-server.c:414)
+[32m12/07 21:43:38.211[0m: [[33mapp[0m] [1;32mINFO[0m: UDR initialize...done (../src/udr/app.c:31)
+[32m12/07 21:43:38.240[0m: [[33msbi[0m] [1;32mINFO[0m: [5151f000-b4e4-41ef-ade3-b7d2af8d6e6c] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:221)
+[32m12/07 21:43:38.243[0m: [[33msbi[0m] [1;32mINFO[0m: [515dcd08-b4e4-41ef-925f-43f45b3d5e1e] Subscription created until 2024-12-08T21:43:38.241987+00:00 [duration:86400,validity:86399.998877,patch:43199.999438] (../lib/sbi/nnrf-handler.c:813)
