@@ -4,11 +4,11 @@ metadata:
   name: open5gs-upf-1
   namespace: cemenin
   labels:
-    epc-mode: upf1
+    epc-mode: upf
     prometheus: open5gs-monitor
 spec:
   selector:
-    epc-mode: upf1
+    epc-mode: upf
   ports:
     - name: http2-80
       protocol: TCP
@@ -29,17 +29,17 @@ metadata:
   name: open5gs-upf-1
   namespace: cemenin
   labels:
-    epc-mode: upf1
+    epc-mode: upf
     prometheus: open5gs-monitor
 spec:
   replicas: 1
   selector:
     matchLabels:
-      epc-mode: upf1
+      epc-mode: upf
   template:
     metadata:
       labels:
-        epc-mode: upf1
+        epc-mode: upf
         app: open5gs-upf
         prometheus: open5gs-monitor
         version: 2.6.4
@@ -48,7 +48,7 @@ spec:
         kubernetes.io/arch: amd64
         kubernetes.io/hostname: metallica
       containers:
-        - name: upf1
+        - name: upf-1
           image: gradiant/open5gs:2.7.1
           #imagePullPolicy: Always
           ports:
@@ -66,19 +66,19 @@ spec:
             capabilities:
               add: ["NET_ADMIN", "SYS_MODULE"]
           volumeMounts:
-            - name: open5gs-upf1-config
+            - name: open5gs-upf-config
               mountPath: /open5gs/config-map/upf.yaml
               subPath: "upf.yaml"
             - name: "dev-net-tun"
               mountPath: "/dev/net/tun" # Needed for VPN
-            - name: open5gs-upf1-config
+            - name: open5gs-upf-config
               mountPath: /bin/entrypoint.sh
               subPath: entrypoint.sh
           command: ["/bin/entrypoint.sh"]
       volumes:
-        - name: open5gs-upf1-config
+        - name: open5gs-upf-config
           configMap:
-            name: open5gs-upf1-config
+            name: open5gs-upf-config
             defaultMode: 0777
         - name: dev-net-tun
           hostPath:
@@ -90,10 +90,10 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: open5gs-upf1-config
+  name: open5gs-upf-config
   namespace: cemenin
   labels:
-    epc-mode: upf1
+    epc-mode: upf
 data:
   upf.yaml: |-
     logger:
